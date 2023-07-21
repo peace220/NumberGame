@@ -6,21 +6,27 @@ import style from './MainInterface.module.css';
 
 const CONTRACT_ADDRESS = '0x123456789ABCDEF'; // Replace this with your actual contract address
 
-async function JoinGame(){
+//Smart Contract
+async function JoinGame(Contract, wallet){
 try{
-  const valueToSend = ethers.utils.parseEther('0.00006');
+
+  const contract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, wallet);
+
+  const valueToSend = ethers.utils.parseEther('0.0005');
 
   const tx = await contract.joinGame({ value: valueToSend, gasLimit: 50000 });// send the ethers and gas to the smart contract
   await tx.wait();
 
-  console.log('Transaction Receipt:', tx);
+  alert('Transaction Receipt:');
 } catch(error){
-
+  alert('Error:');
 }
 }
 async function Guess(){
 
 }
+
+// Main Function
 function App() {
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
@@ -32,9 +38,22 @@ function App() {
   const guess = () =>{
     Guess();
   }
-  const joingame = ()=>{
+  const joingame = async ()=>{
     connectWalletHandler();
-    JoinGame();
+    if(contract && defaultAccount){
+      try{
+        const wallet = new ethers.Wallet(defaultAccount);
+
+        await joinGame(contract, wallet);
+
+        alert('Game joined successfully');
+      }catch (error) {
+        alert('Error joining game:');
+      }
+    }else{
+      alert(contract);
+      alert(defaultAccount);
+    }
   }
 
   const connectWalletHandler = () => {
@@ -58,12 +77,35 @@ function App() {
     const tempContract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, tempSigner);
 
     setContract(tempContract);
+    alert(tempContract);
   };
 
   const accountChangeHandler = newAccount => {
     setDefaultAccount(newAccount);
     updateEthers();
   };
+
+// UI PART
+  const [userInput, setUserInput] = useState('');
+  const HandleFormSubmit = (event)=>{
+    event.preventDefault();
+
+    const intValue = parseInt(userInput, 10);
+
+    if (isNaN(intValue) ) {
+      alert('Please enter a valid number.');
+    } else if (intValue >= 1 && intValue <= 99){
+      alert("Nice");
+    } 
+    else {
+      alert('Not nice!');
+    }
+  }
+
+  const handleGuessInput = event =>{
+    setUserInput(event.target.value);
+  }
+
 
   return (
     <div>
@@ -74,8 +116,16 @@ function App() {
 
       <div className={style.Join_Game_Button}> 
         <button onClick={joingame}>Join Game</button>
-        <input className={style.Guess_Text_Field}></input>
-        <button onClick={guess}>Guess</button>
+        <input
+          type="text"
+          id="GuessValue"
+          name="GuessValue"
+          onChange={handleGuessInput}
+          value={userInput}
+        />
+        <h2>Message: {userInput}</h2>
+        <button onClick={HandleFormSubmit}>Guess</button>
+        <button>Withdraw</button>
       </div>
 
       
