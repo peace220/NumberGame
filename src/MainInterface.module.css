@@ -1,0 +1,13 @@
+.Join_Game_Button{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.Join_Game_Button button{
+    margin-bottom: 10px;
+}
+
+.Guess_Text_Field {
+    margin-bottom: 10px;
+}
