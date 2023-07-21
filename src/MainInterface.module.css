@@ -8,6 +8,12 @@
     margin-bottom: 10px;
 }
 
-.Guess_Text_Field {
+.Guess_Text_Field{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.Guess_Text_Field input{
     margin-bottom: 10px;
 }
