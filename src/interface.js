@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import Abijson from './Abi.json';
-import { getWeb3 } from './utils.js';
 //css
 import style from './MainInterface.module.css';
 
