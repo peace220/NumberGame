@@ -43,7 +43,6 @@ function App() {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         // Connect the provider to the signer
         const signer = provider.getSigner(defaultAccount);
-        alert(signer);
 
         await JoinGame(signer);
 
@@ -52,8 +51,6 @@ function App() {
       }
     }else{
       alert('Please connect your wallet first.');
-      alert(contract);
-      alert(defaultAccount);
     }
   }
 
@@ -91,7 +88,6 @@ function App() {
 
     setContract(tempContract);
   };
-
 
 
 // UI PART
