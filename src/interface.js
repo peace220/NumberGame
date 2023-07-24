@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import Abijson from './Abi.json';
+import { getWeb3 } from './utils.js';
 //css
 import style from './MainInterface.module.css';
 
 const CONTRACT_ADDRESS = '0xd9145CCE52D386f254917e481eB44e9943F39138'; // Replace this with your actual contract address
 
 //Smart Contract
-async function JoinGame(Contract, wallet){
+async function JoinGame(wallet){
 try{
-
   const contract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, wallet);
-
-  const valueToSend = ethers.utils.parseEther('0.0005');
+  const valueToSend = ethers.utils.parseEther('0.00005'); 
 
   const tx = await contract.joinGame({ value: valueToSend, gasLimit: 50000 });// send the ethers and gas to the smart contract
   await tx.wait();
 
   alert('Transaction Receipt:');
 } catch(error){
-  alert('Error:');
+  alert(error);
 }
 }
 async function Guess(){
@@ -38,18 +37,22 @@ function App() {
   const guess = () =>{
     Guess();
   }
-  const joingame = async ()=>{
+  const joinGame  = async ()=>{
     connectWalletHandler();
     if(contract && defaultAccount){
       try{
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // Connect the provider to the signer
+        const signer = provider.getSigner(defaultAccount);
+        alert(signer);
 
-        await JoinGame(contract, wallet);
+        await JoinGame(signer);
 
-        alert('Game joined successfully');
       }catch (error) {
         alert('Error joining game:');
       }
     }else{
+      alert('Please connect your wallet first.');
       alert(contract);
       alert(defaultAccount);
     }
@@ -61,7 +64,6 @@ function App() {
         .request({ method: 'eth_requestAccounts' })
         .then(result => {
           accountChangeHandler(result[0]);
-          alert("hello");
         })
         .catch(error => {
           console.error('Error connecting wallet:', error);
@@ -69,6 +71,7 @@ function App() {
     } else {
       console.error('MetaMask extension not found.');
     }
+
   };
 
   const accountChangeHandler = (newAccount) => {
@@ -77,10 +80,15 @@ function App() {
   };
 
 
-  const updateEthers = () => {
+  const updateEthers = async () => {
     const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
     const tempSigner = tempProvider.getSigner();
-    const tempContract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, tempSigner);
+    const resolvedContractAddress = await tempProvider.resolveName(CONTRACT_ADDRESS);
+    if (!ethers.utils.isAddress(resolvedContractAddress)) {
+      console.error('Invalid contract address.');
+      return;
+    }
+    const tempContract = new ethers.Contract(resolvedContractAddress, Abijson, tempSigner);
 
     setContract(tempContract);
   };
@@ -117,7 +125,7 @@ function App() {
       {contract && <p>Contract instance: {CONTRACT_ADDRESS}</p>}
 
       <div className={style.Join_Game_Button}> 
-        <button onClick={joingame}>Join Game</button>
+        <button onClick={joinGame}>Join Game</button>
         <input
           type="text"
           id="GuessValue"
