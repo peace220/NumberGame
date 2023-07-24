@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-const ethers = require("ethers")
+import { ethers } from 'ethers';
 import Abijson from './Abi.json';
 //css
 import style from './MainInterface.module.css';
@@ -42,7 +42,6 @@ function App() {
     connectWalletHandler();
     if(contract && defaultAccount){
       try{
-        const wallet = new ethers.Wallet(defaultAccount);
 
         await JoinGame(contract, wallet);
 
@@ -62,6 +61,7 @@ function App() {
         .request({ method: 'eth_requestAccounts' })
         .then(result => {
           accountChangeHandler(result[0]);
+          alert("hello");
         })
         .catch(error => {
           console.error('Error connecting wallet:', error);
@@ -71,19 +71,21 @@ function App() {
     }
   };
 
+  const accountChangeHandler = (newAccount) => {
+    setDefaultAccount(newAccount);
+    updateEthers();
+  };
+
+
   const updateEthers = () => {
     const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
     const tempSigner = tempProvider.getSigner();
     const tempContract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, tempSigner);
 
     setContract(tempContract);
-    alert(tempContract);
   };
 
-  const accountChangeHandler = newAccount => {
-    setDefaultAccount(newAccount);
-    updateEthers();
-  };
+
 
 // UI PART
   const [userInput, setUserInput] = useState('');
@@ -112,7 +114,7 @@ function App() {
       <h3>{"Get/Set Interaction with contract!"}</h3>
       <button onClick={connectWalletHandler}>Connect Wallet</button>
       {defaultAccount && <h3> Address: {defaultAccount} </h3>}
-      {contract && <p>Contract instance: {contract.address}</p>}
+      {contract && <p>Contract instance: {CONTRACT_ADDRESS}</p>}
 
       <div className={style.Join_Game_Button}> 
         <button onClick={joingame}>Join Game</button>
