@@ -4,7 +4,7 @@ import Abijson from './Abi.json';
 //css
 import style from './MainInterface.module.css';
 
-const CONTRACT_ADDRESS = '0x123456789ABCDEF'; // Replace this with your actual contract address
+const CONTRACT_ADDRESS = '0xd9145CCE52D386f254917e481eB44e9943F39138'; // Replace this with your actual contract address
 
 //Smart Contract
 async function JoinGame(Contract, wallet){
@@ -44,7 +44,7 @@ function App() {
       try{
         const wallet = new ethers.Wallet(defaultAccount);
 
-        await joinGame(contract, wallet);
+        await JoinGame(contract, wallet);
 
         alert('Game joined successfully');
       }catch (error) {
