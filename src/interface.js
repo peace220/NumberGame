@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import Abijson from './Abi.json';
+import Abijson from './Contract/Abi.json';
 //css
 import style from './MainInterface.module.css';
 
 const CONTRACT_ADDRESS = '0xd9145CCE52D386f254917e481eB44e9943F39138'; // Replace this with your actual contract address
+const [EtherBet, setEtherBet] = useState("0.00005");
 
-//Smart Contract
+
 async function JoinGame(wallet){
 try{
   const contract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, wallet);
@@ -21,6 +22,13 @@ try{
 }
 }
 async function Guess(){
+  try{
+    const valueToSend = ethers.utils.parseEther(EtherBet);
+    const guessing = await contract.makeGuess({ value: valueToSend, gasLimit: 50000})
+    await guessing.wait();
+  }catch(error){
+    alert(error);
+  }
 
 }
 
@@ -28,16 +36,34 @@ async function Guess(){
 function App() {
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
+  const [targetNumber, setTargetNumber] = useState(null);
+  const [TempEtherBet] = useState(null);
+  
 
   useEffect(() => {
-    connectWalletHandler();
+    const init = async () => {
+      connectWalletHandler();
+      const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+      const tempSigner = tempProvider.getSigner();
+      const tempContract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, tempSigner);
+  
+      setContract(tempContract);
+    };
+  
+    init();
+    window.ethereum.on('accountsChanged', accounts => {
+      setDefaultAccount(accounts);
+    });
   }, []);
 
   const guess = () =>{
-    Guess();
+    if(contract && defaultAccount){
+      Guess()
+    }else{
+      alert('Contract or user token is not found!')
+    }
   }
   const joinGame  = async ()=>{
-    connectWalletHandler();
     if(contract && defaultAccount){
       try{
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -67,26 +93,23 @@ function App() {
     } else {
       console.error('MetaMask extension not found.');
     }
-
   };
 
   const accountChangeHandler = (newAccount) => {
     setDefaultAccount(newAccount);
-    updateEthers();
   };
 
+  const fetchTargetNumber = async () => {
+    try {
 
-  const updateEthers = async () => {
-    const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-    const tempSigner = tempProvider.getSigner();
-    const resolvedContractAddress = await tempProvider.resolveName(CONTRACT_ADDRESS);
-    if (!ethers.utils.isAddress(resolvedContractAddress)) {
-      console.error('Invalid contract address.');
-      return;
+      const result = await contract.getTargetNumber();
+
+      // Update the state with the fetched target number
+      setTargetNumber(result.toString());
+      alert(targetNumber);
+    } catch (error) {
+      alert('Error fetching target number:'+ error);
     }
-    const tempContract = new ethers.Contract(resolvedContractAddress, Abijson, tempSigner);
-
-    setContract(tempContract);
   };
 
 
@@ -96,11 +119,20 @@ function App() {
     event.preventDefault();
 
     const intValue = parseInt(userInput, 10);
-
-    if (isNaN(intValue) ) {
+    const tempbet = parseInt(TempEtherBet, 10);
+    if (isNaN(intValue) || isNaN(tempbet)) {
       alert('Please enter a valid number.');
-    } else if (intValue >= 1 && intValue <= 99){
+    }
+
+    if(tempbet<0.00005){
+      alert("Please Bet more than the 0.00005 ether");
+    }else{
+      setEtherBet(TempEtherBet);
+    }
+
+    if (intValue >= 1 && intValue <= 99){
       alert("Nice");
+      guess();
     } 
     else {
       alert('Not nice!');
@@ -125,16 +157,24 @@ function App() {
           type="text"
           id="GuessValue"
           name="GuessValue"
+          placeholder='Enter your Bet'
+          value={TempEtherBet}
+        />
+        <input
+          type="text"
+          id="GuessValue"
+          name="GuessValue"
+          placeholder='Enter your Guessing Number'
           onChange={handleGuessInput}
           value={userInput}
         />
         <h2>Message: {userInput}</h2>
         <button onClick={HandleFormSubmit}>Guess</button>
         <button>Withdraw</button>
+        <button onClick={fetchTargetNumber}>Get Number</button>
+        <p>Random Number: {targetNumber}</p>
       </div>
 
-      
-      
     </div>
   );
 }
