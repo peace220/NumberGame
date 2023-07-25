@@ -5,7 +5,7 @@ import Abijson from './Contract/Abi.json';
 import style from './MainInterface.module.css';
 
 const CONTRACT_ADDRESS = '0xd9145CCE52D386f254917e481eB44e9943F39138'; // Replace this with your actual contract address
-const [EtherBet, setEtherBet] = useState("0.00005");
+
 
 
 async function JoinGame(wallet){
@@ -34,6 +34,7 @@ async function Guess(){
 
 // Main Function
 function App() {
+  const [EtherBet, setEtherBet] = useState("0.00005");
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
   const [targetNumber, setTargetNumber] = useState(null);
@@ -114,7 +115,7 @@ function App() {
 
 
 // UI PART
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState();
   const HandleFormSubmit = (event)=>{
     event.preventDefault();
 
