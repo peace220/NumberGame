@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import Abijson from './Contract/Abi.json';
+import Abijson from './artifacts/contracts/NumberGame.sol/NumberGame.json';
 //css
 import style from './MainInterface.module.css';
 
-const CONTRACT_ADDRESS = '0xd9145CCE52D386f254917e481eB44e9943F39138'; // address of the contract
+const CONTRACT_ADDRESS = '0x9155497eae31d432c0b13dbcc0615a37f55a2c87'; // address of the contract
 
 // Main Function
 function App() {
@@ -58,6 +58,7 @@ function App() {
     
         const tx = await contract.joinGame({ value: valueToSend, gasLimit: 50000 });// send the ethers and gas to the smart contract
         await tx.wait();
+        await contract.methods.with
     
         alert('Transaction Receipt:');
     } catch(error){
@@ -73,6 +74,20 @@ function App() {
     }catch(error){
     alert(error);
     }
+}
+
+async function GetNumber(){
+  try{
+    const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+    const tempSigner = tempProvider.getSigner();
+    const tempContract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, tempSigner);
+    await tempContract.makeGuess(12);
+    
+      // Update the state with the fetched target number
+      setTargetNumber(result.toString());
+  }catch(error){
+    alert(error);
+  }
 }
 
 
@@ -98,16 +113,15 @@ function App() {
       }
     }else{
       alert('Please connect your wallet first.');
+      alert(contract);
     }
   }
 
-  const fetchTargetNumber = async () => {
+  const fetchTargetNumber = () => {
     try {
 
-      const result = await contract.generateTargetNumber();
+      GetNumber();
 
-      // Update the state with the fetched target number
-      setTargetNumber(result.toString());
       alert(targetNumber);
     } catch (error) {
       alert('Error fetching target number:'+ error);
