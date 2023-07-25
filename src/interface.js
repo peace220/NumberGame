@@ -34,11 +34,11 @@ async function Guess(){
 
 // Main Function
 function App() {
-  const [EtherBet, setEtherBet] = useState("0.00005");
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
   const [targetNumber, setTargetNumber] = useState(null);
   const [TempEtherBet] = useState(null);
+  const [EtherBet, setEtherBet] = useState("0.00005");
   
 
   useEffect(() => {
