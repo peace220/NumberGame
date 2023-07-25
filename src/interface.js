@@ -4,33 +4,7 @@ import Abijson from './Contract/Abi.json';
 //css
 import style from './MainInterface.module.css';
 
-const CONTRACT_ADDRESS = '0xd9145CCE52D386f254917e481eB44e9943F39138'; // Replace this with your actual contract address
-
-
-
-async function JoinGame(wallet){
-try{
-  const contract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, wallet);
-  const valueToSend = ethers.utils.parseEther('0.00005'); 
-
-  const tx = await contract.joinGame({ value: valueToSend, gasLimit: 50000 });// send the ethers and gas to the smart contract
-  await tx.wait();
-
-  alert('Transaction Receipt:');
-} catch(error){
-  alert(error);
-}
-}
-async function Guess(){
-  try{
-    const valueToSend = ethers.utils.parseEther(EtherBet);
-    const guessing = await contract.makeGuess({ value: valueToSend, gasLimit: 50000})
-    await guessing.wait();
-  }catch(error){
-    alert(error);
-  }
-
-}
+const CONTRACT_ADDRESS = '0xd9145CCE52D386f254917e481eB44e9943F39138'; // address of the contract
 
 // Main Function
 function App() {
@@ -39,8 +13,8 @@ function App() {
   const [targetNumber, setTargetNumber] = useState(null);
   const [TempEtherBet] = useState(null);
   const [EtherBet, setEtherBet] = useState("0.00005");
-  
 
+//auto initialized needed to connect to wallet
   useEffect(() => {
     const init = async () => {
       connectWalletHandler();
@@ -56,30 +30,6 @@ function App() {
       setDefaultAccount(accounts);
     });
   }, []);
-
-  const guess = () =>{
-    if(contract && defaultAccount){
-      Guess()
-    }else{
-      alert('Contract or user token is not found!')
-    }
-  }
-  const joinGame  = async ()=>{
-    if(contract && defaultAccount){
-      try{
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        // Connect the provider to the signer
-        const signer = provider.getSigner(defaultAccount);
-
-        await JoinGame(signer);
-
-      }catch (error) {
-        alert('Error joining game:');
-      }
-    }else{
-      alert('Please connect your wallet first.');
-    }
-  }
 
   const connectWalletHandler = () => {
     if (window.ethereum) {
@@ -100,10 +50,61 @@ function App() {
     setDefaultAccount(newAccount);
   };
 
+//smart contracts
+  async function JoinGame(UserAddress){
+    try{
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, UserAddress);
+        const valueToSend = ethers.utils.parseEther('0.00005'); 
+    
+        const tx = await contract.joinGame({ value: valueToSend, gasLimit: 50000 });// send the ethers and gas to the smart contract
+        await tx.wait();
+    
+        alert('Transaction Receipt:');
+    } catch(error){
+        alert(error);
+    }
+}
+
+  async function Guess(EtherBet){
+    try{
+    const valueToSend = ethers.utils.parseEther(EtherBet);
+    const guessing = await contract.makeGuess({ value: valueToSend, gasLimit: 50000})
+    await guessing.wait();
+    }catch(error){
+    alert(error);
+    }
+}
+
+
+  //passing value to smart contract functions
+  const guess = () =>{
+    if(contract && defaultAccount){
+      Guess(EtherBet)
+    }else{
+      alert('Contract or user token is not found!')
+    }
+  }
+  const join_Game  = async ()=>{
+    if(contract && defaultAccount){
+      try{
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // Connect the provider to the signer
+        const signer = provider.getSigner(defaultAccount);
+
+        await JoinGame(signer);
+
+      }catch (error) {
+        alert('Error joining game:');
+      }
+    }else{
+      alert('Please connect your wallet first.');
+    }
+  }
+
   const fetchTargetNumber = async () => {
     try {
 
-      const result = await contract.getTargetNumber();
+      const result = await contract.generateTargetNumber();
 
       // Update the state with the fetched target number
       setTargetNumber(result.toString());
@@ -121,7 +122,7 @@ function App() {
 
     const intValue = parseInt(userInput, 10);
     const tempbet = parseInt(TempEtherBet, 10);
-    if (isNaN(intValue) || isNaN(tempbet)) {
+    if (isNaN(intValue) && isNaN(tempbet)) {
       alert('Please enter a valid number.');
     }
 
@@ -153,7 +154,7 @@ function App() {
       {contract && <p>Contract instance: {CONTRACT_ADDRESS}</p>}
 
       <div className={style.Join_Game_Button}> 
-        <button onClick={joinGame}>Join Game</button>
+        <button onClick={join_Game}>Join Game</button>
         <input
           type="text"
           id="GuessValue"
