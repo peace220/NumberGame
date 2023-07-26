@@ -6,7 +6,5 @@ User will need to download metamask and register an account for it to work.
 Execute the file:
 in terminal
 1. npm i --force// to install all the dependency
-2. npx hardhat node // to create a blockchain
-3. npx hardhat run scripts/deploy.js --network localhost // to deploy the contract into the blockchain
 4. cd src // go to src
 5. npm start // to start react file
