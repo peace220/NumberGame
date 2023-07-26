@@ -3,7 +3,8 @@ const hre = require("hardhat");
 async function main() {
     const NumberGame = await hre.ethers.getContractFactory("NumberGame");
     const Numbergame = await NumberGame.deploy();
-    
+
+
     console.log("NumberGame contract address:");
 }
 

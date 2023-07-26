@@ -24,7 +24,7 @@ contract NumberGame {
         );
         targetNumber =
             (uint256(
-                keccak256(abi.encodePacked(block.timestamp, block.difficulty)) 
+                keccak256(abi.encodePacked(block.timestamp, block.difficulty))
             ) % 99) +
             1;
     }
