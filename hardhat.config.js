@@ -1,16 +1,18 @@
 require("@nomicfoundation/hardhat-toolbox");
+require('dotenv').config();
 
-/** @type import('hardhat/config').HardhatUserConfig */
+const Infura_privatekey = process.env.INFURA_API_KEY;
+const Georli_privatekey = process.env.GEORLI_PRIVATE_KEY;
+
 module.exports = {
   solidity: "0.8.0",
   paths:{
     artifacts: './src/artifacts'
   },
   networks: {
-    hardhat: {
-      forking: {
-        url: "https://mainnet.infura.io/v3/85a57ba9e7114c5d9feec2e559706017"
-      }
+    georli: {
+      url: `https://goerli.infura.io/v3/${Infura_privatekey}`,
+      accounts: [Georli_privatekey]
     }
   }
 };

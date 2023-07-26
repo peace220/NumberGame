@@ -1,16 +1,19 @@
-const hre = require("hardhat");
-
 async function main() {
-    const NumberGame = await hre.ethers.getContractFactory("NumberGame");
-    const Numbergame = await NumberGame.deploy();
+    const [deployer] = await ethers.getSigners();
 
+    console.log("Deploying contracts with the account:", deployer.address);
 
-    console.log("NumberGame contract address:");
+    console.log("Account balance:", (await deployer.getBalance()).toString());
+
+    const Numbergame = await ethers.getContractFactory("NumberGame");
+    const contract = await Numbergame.deploy();
+
+    console.log("NumberGame address:", await contract.address);
 }
 
 main()
-.then(() => process.exit(0))
-.catch((error) => {
+    .then(() => process.exit(0))
+    .catch((error) => {
     console.error(error);
     process.exit(1);
-}); 
+});
