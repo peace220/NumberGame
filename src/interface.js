@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import Abijson from './artifacts/contracts/NumberGame.sol/NumberGame.json';
+
 //css
 import style from './MainInterface.module.css';
-
-const CONTRACT_ADDRESS = '0x588CfE7FDda3C122B90dc8302116376339e55d16'; // address of the contract
+const OWNER_ADDRESS = process.env.REACT_APP_OWNER_ADDRESS;
+const CONTRACT_ADDRESS = '0x595549d9AcF1288ffDe2CD9FBDeA6E7b3208f50E'; // address of the contract
 
 // Main Function
 function App() {
+  console.log(OWNER_ADDRESS);
   const [userInput, setUserInput] = useState();
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
@@ -54,8 +56,6 @@ function App() {
     
         const tx = await contract.joinGame({ value: valueToSend, gasLimit: 100000 });// send the ethers and gas to the smart contract
         await tx.wait();
-    
-        alert('Transaction Receipt:');
     } catch(error){
         alert(error);
     }
@@ -83,6 +83,14 @@ async function GetNumber(){
     const Number = await contract.getTargetNumber({from: defaultAccount, gasLimit: 100000});
     setTargetNumber(Number.toString());
   }catch(error){
+    alert(error);
+  }
+}
+
+async function Withdraw(){
+  try{
+    await contract.withdraw({from:defaultAccount, gasLimit: 100000});
+  } catch(error){
     alert(error);
   }
 }
@@ -144,8 +152,9 @@ async function GetNumber(){
           value={userInput}
         />
         <button onClick={HandleFormSubmit}>Guess</button>
-        <button>Withdraw</button>
+        <button onClick={Withdraw}>Withdraw</button>
         <button onClick={GetNumber}>Get Number</button>
+        <p>Player Turn: {GuessMessage}</p>
         <p>Random Number: {targetNumber}</p>
       </div>
       <h2>Bet Amount: {TempEtherBet}</h2>

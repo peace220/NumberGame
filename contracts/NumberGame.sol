@@ -5,7 +5,7 @@ contract NumberGame {
     address payable public owner;
     address payable public player1;
     address payable public player2;
-    uint256 private player1Bet;
+    uint256 public player1Bet;
     uint256 public player2Bet;
     uint256 private minimumBet;
     uint256 private targetNumber;
@@ -78,13 +78,13 @@ contract NumberGame {
 
         if (msg.sender == player1) {
             uint256 amount = player1Bet / 2;
-            require(minimumBet <=  amount, "No balance to withdraw");
+            require(amount >= minimumBet, "No balance to withdraw");
             payable(player1).transfer(amount);
             player1 = payable(address(0));
 
         } if(msg.sender == player2) {
             uint256 amount = player2Bet / 2;
-            require(minimumBet <= amount, "No balance to withdraw");
+            require(amount >= minimumBet, "No balance to withdraw");
             payable(player2).transfer(amount);
             player2 = payable(address(0));
         }
@@ -96,7 +96,7 @@ contract NumberGame {
             msg.sender == owner,
             "Only the owner can view the target number"
         );
- 
+
         return targetNumber;
     }
 }
