@@ -17,3 +17,21 @@
 .Guess_Text_Field input{
     margin-bottom: 10px;
 }
+
+
+.Container {
+    display: flex; /* Use flexbox to create a horizontal layout */
+  }
+  
+  .LeftColumn {
+    flex: 1; /* Take up the available space in the container */
+    padding: 20px; /* Optional: Add padding for better spacing */
+  }
+  
+  .RightColumn {
+    flex: 1; /* Take up the available space in the container */
+    padding: 20px; /* Optional: Add padding for better spacing */
+  }
+
+
+

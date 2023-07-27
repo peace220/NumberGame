@@ -128,36 +128,39 @@ async function Withdraw(){
 
 
   return (
-    <div>
-      <h3>{"Get/Set Interaction with contract!"}</h3>
-      {defaultAccount && <h3> Address: {defaultAccount} </h3>}
-      {contract && <p>Contract instance: {CONTRACT_ADDRESS}</p>}
+    <div className={style.Container}>
+      <div className={style.LeftColumn}>
+        {defaultAccount && <h3> Address: {defaultAccount} </h3>}
 
-      <div className={style.Join_Game_Button}> 
-        <button onClick={JoinGame}>Join Game</button>
-        <input
-          type="text"
-          id="GuessValue"
-          name="GuessValue"
-          placeholder='Enter your Bet'
-          onChange={handleEtherBetInput}
-          value={TempEtherBet}
-        />
-        <input
-          type="text"
-          id="GuessValue"
-          name="GuessValue"
-          placeholder='Enter your Guessing Number'
-          onChange={handleGuessInput}
-          value={userInput}
-        />
-        <button onClick={HandleFormSubmit}>Guess</button>
-        <button onClick={Withdraw}>Withdraw</button>
-        <button onClick={GetNumber}>Get Number</button>
-        <p>Player Turn: {GuessMessage}</p>
-        <p>Random Number: {targetNumber}</p>
+        <div className={style.Join_Game_Button}> 
+          <button onClick={JoinGame}>Join Game</button>
+          <input
+            type="text"
+            id="GuessValue"
+            name="GuessValue"
+            placeholder='Enter your Bet'
+            onChange={handleEtherBetInput}
+            value={TempEtherBet}
+          />
+          <input
+            type="text"
+            id="GuessValue"
+            name="GuessValue"
+            placeholder='Enter your Guessing Number'
+            onChange={handleGuessInput}
+            value={userInput}
+          />
+          <button onClick={HandleFormSubmit}>Guess</button>
+          <button onClick={Withdraw}>Withdraw</button>
+          <button onClick={GetNumber}>Get Number</button>
+          <p>Player Turn: {GuessMessage}</p>
+          <p>Random Number: {targetNumber}</p>
+        </div>
       </div>
-      <h2>Bet Amount: {TempEtherBet}</h2>
+
+      <div className={style.RightColumn}>
+        <h2>Bet Amount: {TempEtherBet}</h2>
+      </div>
     </div>
   );
 }
