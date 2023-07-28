@@ -20,4 +20,3 @@ changing account in meta mask will auto change in the web also.
 only the owner can show the target number
 careful the amount of ether u bet.
 
-TARGET NUMBER = 63 one time use only
