@@ -50,13 +50,13 @@ contract NumberGame {
         gameEnded = false;
     }
 
-    function makeGuess(uint256 P1guess, uint256 P2guess) public payable {
+    function makeGuess(uint256 p1Guess, uint256 p2Guess) public payable {
         require(!gameEnded, "Game has already ended");
-        require(P1guess > 0 && P1guess <= 10, "Guess must be between 1 and 10");
-        require(P2guess > 0 && P2guess <= 10, "Guess must be between 1 and 10");
+        require(p1Guess > 0 && p1Guess <= 10, "Guess must be between 1 and 10");
+        require(p2Guess > 0 && p2Guess <= 10, "Guess must be between 1 and 10");
         require(msg.value >=  minimumBet, "Please send ether with your guess equal or higher than the entry fee");
 
-        if (P1guess == targetNumber && P2guess == targetNumber) {
+        if (p1Guess == targetNumber && p2Guess == targetNumber) {
             gameEnded = true;
             payable(player1).transfer(address(this).balance/2);
             payable(player2).transfer(address(this).balance);
@@ -65,7 +65,7 @@ contract NumberGame {
             player2 = payable(address(0));
             player1Bet = 0;
             player2Bet = 0;
-        } else if(P1guess == targetNumber || P2guess == targetNumber){
+        } else if(p1Guess == targetNumber || p2Guess == targetNumber){
             gameEnded = true;
             payable(msg.sender).transfer(address(this).balance);
             generateTargetNumber();
@@ -104,7 +104,7 @@ contract NumberGame {
             msg.sender == owner,
             "Only the owner can view the target number"
         );
-
+ 
         return targetNumber;
     }
 }

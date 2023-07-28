@@ -5,11 +5,10 @@ import Abijson from './artifacts/contracts/NumberGame.sol/NumberGame.json';
 //css
 import style from './MainInterface.module.css';
 const OWNER_ADDRESS = process.env.REACT_APP_OWNER_ADDRESS;
-const CONTRACT_ADDRESS = '0x595549d9AcF1288ffDe2CD9FBDeA6E7b3208f50E'; // address of the contract
+const CONTRACT_ADDRESS = "0x595549d9AcF1288ffDe2CD9FBDeA6E7b3208f50E"; // address of the contract
 
 // Main Function
 function App() {
-  console.log(OWNER_ADDRESS);
   const [userInput, setUserInput] = useState();
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
@@ -17,6 +16,13 @@ function App() {
   const [TempEtherBet, setTempEB] = useState();
   const [EtherBet, setEtherBet] = useState();
   const [GuessMessage, setGuessMessage] = useState(null);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [MetaMaskMessage, setMetaMaskMessage] = useState();
+  // const currentPlayer = contract.currentPlayer().then(result =>{
+  //   currentPlayer = result;
+  // }).catch(error =>{
+  //   console.error("Error reading contract vairable:", error);
+  // });
 
 //auto initialized needed to connect to wallet
   useEffect(() => {
@@ -59,7 +65,7 @@ function App() {
     } catch(error){
         alert(error);
     }
-}
+  }
 
   async function Guess(){
     if(contract && defaultAccount){
@@ -69,6 +75,7 @@ function App() {
         .makeGuess(userInput, { from: defaultAccount, value: valueToSend, gasLimit: 100000})
         await guessing.wait();
         setGuessMessage(`Next Player ${defaultAccount}`);
+        console.log(guessing);
         }catch(error){
         alert(error);
         }
@@ -76,24 +83,30 @@ function App() {
       alert('Contract or user token is not found!')
     }
     
-}
-
-async function GetNumber(){
-  try{
-    const Number = await contract.getTargetNumber({from: defaultAccount, gasLimit: 100000});
-    setTargetNumber(Number.toString());
-  }catch(error){
-    alert(error);
   }
-}
 
-async function Withdraw(){
-  try{
-    await contract.withdraw({from:defaultAccount, gasLimit: 100000});
-  } catch(error){
-    alert(error);
+  async function GetNumber(){
+    if(defaultAccount === OWNER_ADDRESS){
+      try{
+        const Number = await contract.getTargetNumber({from: defaultAccount, gasLimit: 100000});
+        setTargetNumber(Number.toString());
+      }catch(error){
+        alert(error);
+      }
+    }else{
+      setShowErrorMessage(true);
+      setTimeout(() => setShowErrorMessage(false), 5000);
+    }
+    
   }
-}
+
+  async function Withdraw(){
+    try{
+      await contract.withdraw({from:defaultAccount, gasLimit: 100000});
+    } catch(error){
+      alert(error);
+    }
+  }
 
 // UI PART
   
@@ -153,6 +166,7 @@ async function Withdraw(){
           <button onClick={HandleFormSubmit}>Guess</button>
           <button onClick={Withdraw}>Withdraw</button>
           <button onClick={GetNumber}>Get Number</button>
+          {showErrorMessage && <p>You are not authorized to show the target number</p>}
           <p>Player Turn: {GuessMessage}</p>
           <p>Random Number: {targetNumber}</p>
         </div>
