@@ -12,8 +12,8 @@ the env file is used to deploy the contract based on your infura and georli key.
 Execute the file:
 in terminal
 1. npm i --force// to install all the dependency
-4. cd src // go to src
-5. npm start // to start react file
+2. cd src // go to src
+3. npm start // to start react file
 
 
 changing account in meta mask will auto change in the web also.
