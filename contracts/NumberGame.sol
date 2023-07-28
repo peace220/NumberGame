@@ -50,26 +50,32 @@ contract NumberGame {
         gameEnded = false;
     }
 
-    function makeGuess(uint256 guess) public payable {
+    function makeGuess(uint256 P1guess, uint256 P2guess) public payable {
         require(!gameEnded, "Game has already ended");
-        require(msg.sender == currentPlayer, "Not your turn");
-        require(guess > 0 && guess <= 99, "Guess must be between 1 and 99");
+        require(P1guess > 0 && P1guess <= 10, "Guess must be between 1 and 10");
+        require(P2guess > 0 && P2guess <= 10, "Guess must be between 1 and 10");
         require(msg.value >=  minimumBet, "Please send ether with your guess equal or higher than the entry fee");
 
-        if (guess == targetNumber) {
+        if (P1guess == targetNumber && P2guess == targetNumber) {
+            gameEnded = true;
+            payable(player1).transfer(address(this).balance/2);
+            payable(player2).transfer(address(this).balance);
+            generateTargetNumber();
+            player1 = payable(address(0));
+            player2 = payable(address(0));
+            player1Bet = 0;
+            player2Bet = 0;
+        } else if(P1guess == targetNumber || P2guess == targetNumber){
             gameEnded = true;
             payable(msg.sender).transfer(address(this).balance);
             generateTargetNumber();
             player1 = payable(address(0));
             player2 = payable(address(0));
-
-        } else {
-            if(currentPlayer == player1){
-                player1Bet += msg.value;
-            }else if (currentPlayer == player2){
-                player2Bet += msg.value;
-            }
-            currentPlayer = (currentPlayer == player1) ? player2 : player1;
+            player1Bet = 0;
+            player2Bet = 0;
+        }else{
+            player1Bet += msg.value;
+            player2Bet += msg.value;
         }
     }
 
@@ -81,12 +87,14 @@ contract NumberGame {
             require(amount >= minimumBet, "No balance to withdraw");
             payable(player1).transfer(amount);
             player1 = payable(address(0));
+            player1Bet = 0;
 
         } if(msg.sender == player2) {
             uint256 amount = player2Bet / 2;
             require(amount >= minimumBet, "No balance to withdraw");
             payable(player2).transfer(amount);
             player2 = payable(address(0));
+            player2Bet = 0;
         }
     }
 
