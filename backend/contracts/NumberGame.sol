@@ -104,7 +104,7 @@ contract NumberGame {
             msg.sender == owner,
             "Only the owner can view the target number"
         );
- 
+
         return targetNumber;
     }
 }

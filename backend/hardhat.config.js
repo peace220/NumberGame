@@ -1,3 +1,4 @@
+require("@nomicfoundation/hardhat-network-helpers");
 require("@nomicfoundation/hardhat-toolbox");
 require('dotenv').config();
 
@@ -7,7 +8,7 @@ const Georli_privatekey = process.env.GEORLI_PRIVATE_KEY;
 module.exports = {
   solidity: "0.8.0",
   paths:{
-    artifacts: './src/artifacts'
+    artifacts: './artifacts'
   },
   networks: {
     georli: {
