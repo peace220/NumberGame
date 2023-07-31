@@ -9,11 +9,14 @@ GEORLI_PRIVATE_KEY = insert ur georli key
 
 the env file is used to deploy the contract based on your infura and georli key.
 
-Execute the file:
+Execute the file front end:
 in terminal
-1. npm i --force// to install all the dependency
-2. cd src // go to src
-3. npm start // to start react file
+1. to install the dependency type npm i based on different directories
+2. execute the file type npm start
+
+contract:
+1. a .env file need to be created based on your goerli key and infura key
+2. npx hardhat run scripts/deploy.js to deploy the smart contract to the blockchain.
 
 
 changing account in meta mask will auto change in the web also.
