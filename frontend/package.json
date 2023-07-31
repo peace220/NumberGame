@@ -13,11 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "chai": "^4.3.7",
     "dotenv": "^10.0.0",
     "ethers": "^5.7.2",
-    "hardhat": "^2.8.4",
     "next": "^12.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

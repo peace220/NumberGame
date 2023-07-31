@@ -16,7 +16,7 @@ in terminal
 
 contract:
 1. a .env file need to be created based on your goerli key and infura key
-2. npx hardhat run scripts/deploy.js to deploy the smart contract to the blockchain.
+2. npx hardhat run scripts/deploy.js --network georli to deploy the smart contract to the blockchain.
 
 
 changing account in meta mask will auto change in the web also.

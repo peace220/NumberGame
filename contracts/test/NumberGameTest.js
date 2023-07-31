@@ -16,5 +16,6 @@ describe("NumberGame Contract", function(){
         await hardhatContract.connect(Player2).joinGame({value: initialBet})
         expect(await hardhatContract.Player1()).to.equal(Player1.address);
         expect(await hardhatContract.Player2()).to.equal(Player2.address);
+        
     }
 })
