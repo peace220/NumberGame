@@ -25,9 +25,11 @@ contract NumberGame {
         targetNumber =
             (uint256(
                 keccak256(abi.encodePacked(block.timestamp, block.difficulty))
-            ) % 99) +
+            ) % 10) +
             1;
     }
+
+    
 
     function joinGame() public payable {
         require(
@@ -36,7 +38,7 @@ contract NumberGame {
         );
         require(msg.sender != player1, "you have already joined the game");
         require(msg.sender != owner, "Owner cannot join the game");
-        require(msg.value >=  0.00005 ether , "Please send ether to join the game");
+        require(msg.value >=  0.00005 ether , "Please send more ether to join the game");
 
         if (player1 == address(0)) {
             player1 = payable(msg.sender);
@@ -50,11 +52,25 @@ contract NumberGame {
         gameEnded = false;
     }
 
-    function makeGuess(uint256 p1Guess, uint256 p2Guess) public payable {
+    function makeBet() public payable{
+        require(!gameEnded, "Game has already ended");
+        require(msg.sender == player1 || msg.sender == player2, "Not a player");
+        require(msg.value >=  0.00005 ether , "Please send more ether to join the game");
+        require(msg.value >=  minimumBet, "Please send ether with your guess equal or higher than the entry fee");
+
+        if (msg.sender == player1) {
+            player1 = payable(msg.sender);
+            player1Bet += msg.value;
+        } else if (msg.sender == player2) {
+            player2 = payable(msg.sender);
+            player2Bet += msg.value;
+        }
+    }
+
+    function makeGuess(uint256 p1Guess, uint256 p2Guess) public {
         require(!gameEnded, "Game has already ended");
         require(p1Guess > 0 && p1Guess <= 10, "Guess must be between 1 and 10");
         require(p2Guess > 0 && p2Guess <= 10, "Guess must be between 1 and 10");
-        require(msg.value >=  minimumBet, "Please send ether with your guess equal or higher than the entry fee");
 
         if (p1Guess == targetNumber && p2Guess == targetNumber) {
             gameEnded = true;
@@ -73,9 +89,6 @@ contract NumberGame {
             player2 = payable(address(0));
             player1Bet = 0;
             player2Bet = 0;
-        }else{
-            player1Bet += msg.value;
-            player2Bet += msg.value;
         }
     }
 
@@ -98,13 +111,8 @@ contract NumberGame {
         }
     }
 
-    function getTargetNumber() public view returns (uint256) {
-        
-        require(
-            msg.sender == owner,
-            "Only the owner can view the target number"
-        );
-
-        return targetNumber;
-    }
+    function setTargetNumber(uint256 newTargetNumber) public {
+    require(msg.sender == owner, "Only the owner can set the target number");
+    targetNumber = newTargetNumber;
+}
 }
