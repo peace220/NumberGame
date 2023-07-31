@@ -114,5 +114,13 @@ contract NumberGame {
     function setTargetNumber(uint256 newTargetNumber) public {
     require(msg.sender == owner, "Only the owner can set the target number");
     targetNumber = newTargetNumber;
-}
+    }
+
+    function getTargetNumber() public view returns (uint256) {
+        
+        require(msg.sender == owner,"Only the owner can view the target number");
+
+        return targetNumber;
+    }
+
 }
