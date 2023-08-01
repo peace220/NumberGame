@@ -1,5 +1,5 @@
 import React from 'react'
-import FirstPage from './interface';
+import FirstPage from './Game/interface';
 
 const App = () => {
   return (
