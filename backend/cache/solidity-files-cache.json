@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\User\\Documents\\Project\\NumberGame\\backend\\contracts\\NumberGame.sol": {
-      "lastModificationDate": 1690793891534,
-      "contentHash": "3315950bd66fc5d98968b79c8b9dc2d4",
+      "lastModificationDate": 1690856725712,
+      "contentHash": "c8de16ffd4cf23f1e70f895032407e16",
       "sourceName": "contracts/NumberGame.sol",
       "solcConfig": {
         "version": "0.8.0",

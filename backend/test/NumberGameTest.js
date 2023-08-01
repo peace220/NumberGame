@@ -89,14 +89,13 @@ describe("NumberGame Contract", function(){
 
         it('If the game is draw, the players should split the balance', async () => {
             const{hardhatContract,Player1,Player2,owner} = await loadFixture(deployToken);
-            const initalBet = ethers.utils.parseEther('0.5');
+            const initalBet = ethers.utils.parseEther('0.01');
             const betValue = ethers.utils.parseEther('10');
-
             // Players join the game and make their guesses
             await hardhatContract.connect(Player1).joinGame({value: initalBet});
             await hardhatContract.connect(Player2).joinGame({value: initalBet});
-            await hardhatContract.connect(Player1).makeBet({value: betValue});
-            await hardhatContract.connect(Player2).makeBet({value: betValue});
+            await hardhatContract.connect(Player1).makeBet({value: betValue, gasLimit: 100000});
+            await hardhatContract.connect(Player2).makeBet({value: betValue, gasLimit: 100000});
             await hardhatContract.connect(owner).setTargetNumber(3);
         
             const p1Guess = 3;
@@ -105,9 +104,46 @@ describe("NumberGame Contract", function(){
 
             // Assert that the contract balance is now zero
             expect(await ethers.provider.getBalance(hardhatContract.address)).to.equal(0);
-            const player1BalanceBefore = await ethers.provider.getBalance(Player1.address);
-            const balanceInEtherPlayer1 = ethers.utils.formatEther(player1BalanceBefore);
-            console.log(Player1.address);
+            const player1Balance = await Player1.getBalance();
+            const player2Balance = await Player2.getBalance();
+
+            // Convert player balances to BigNumber and perform arithmetic operations
+            const player1Ether = ethers.BigNumber.from(player1Balance);
+            const player2Ether = ethers.BigNumber.from(player2Balance);
+            const oneEther = ethers.utils.parseEther('1');
+            const P1DecimalEther = player1Ether.div(oneEther).toNumber();
+            const P2DecimalEther = player2Ether.div(oneEther).toNumber();
+            expect(P1DecimalEther).to.equal(9999);
+            expect(P2DecimalEther).to.equal(9999);
+            
+            
+        });
+
+        it("if one player win, will get all the winnings", async function(){
+            const{hardhatContract,owner,Player1,Player2} = await loadFixture(deployToken);
+            const initalBet = ethers.utils.parseEther("0.0003");
+            const BetValue = ethers.utils.parseEther("10");
+            const P1Guess = 3;
+            const P2Guess = 4;
+
+            await hardhatContract.connect(owner).setTargetNumber(3);
+            await hardhatContract.connect(Player1).joinGame({value: initalBet});
+            await hardhatContract.connect(Player2).joinGame({value: initalBet});
+            await hardhatContract.connect(Player1).makeBet({value: BetValue});
+            await hardhatContract.connect(Player2).makeBet({value: BetValue});
+            await hardhatContract.makeGuess(P1Guess,P2Guess);
+            expect(await ethers.provider.getBalance(hardhatContract.address)).to.equal(0);
+            const player1Balance = await Player1.getBalance();
+            const player2Balance = await Player2.getBalance();
+
+            // Convert player balances to BigNumber and perform arithmetic operations
+            const player1Ether = ethers.BigNumber.from(player1Balance);
+            const player2Ether = ethers.BigNumber.from(player2Balance);
+            const oneEther = ethers.utils.parseEther('1');
+            const P1DecimalEther = player1Ether.div(oneEther).toNumber();
+            const P2DecimalEther = player2Ether.div(oneEther).toNumber();
+            expect(P1DecimalEther).to.equal(10010);
+            expect(P2DecimalEther).to.equal(9989);
         });
 
     });

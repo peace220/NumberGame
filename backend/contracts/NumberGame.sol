@@ -74,16 +74,27 @@ contract NumberGame {
 
         if (p1Guess == targetNumber && p2Guess == targetNumber) {
             gameEnded = true;
-            payable(player1).transfer(address(this).balance/2);
-            payable(player2).transfer(address(this).balance);
+            uint256 totalBet = player1Bet +player2Bet;
+            uint256 player1Share = (address(this).balance * player1Bet) / totalBet;
+            uint256 player2Share = (address(this).balance * player2Bet) / totalBet;
+            payable(player1).transfer(player1Share);
+            payable(player2).transfer(player2Share);
             generateTargetNumber();
             player1 = payable(address(0));
             player2 = payable(address(0));
             player1Bet = 0;
             player2Bet = 0;
-        } else if(p1Guess == targetNumber || p2Guess == targetNumber){
+        } else if(p1Guess == targetNumber){
             gameEnded = true;
-            payable(msg.sender).transfer(address(this).balance);
+            payable(player1).transfer(address(this).balance);
+            generateTargetNumber();
+            player1 = payable(address(0));
+            player2 = payable(address(0));
+            player1Bet = 0;
+            player2Bet = 0;
+        }else if(p2Guess == targetNumber){
+            gameEnded = true;
+            payable(player2).transfer(address(this).balance);
             generateTargetNumber();
             player1 = payable(address(0));
             player2 = payable(address(0));
