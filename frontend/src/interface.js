@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import Abijson from './artifacts/contracts/NumberGame.sol/NumberGame.json';
+import Abijson from './contractABI.json';
 
 //css
 import style from './MainInterface.module.css';
 const OWNER_ADDRESS = process.env.REACT_APP_OWNER_ADDRESS;
-const CONTRACT_ADDRESS = "0x595549d9AcF1288ffDe2CD9FBDeA6E7b3208f50E"; // address of the contract
+const CONTRACT_ADDRESS = "0x87728653fdec1fDbF4b914c87AECea58953ac7e8 "; // address of the contract
 
 // Main Function
 function App() {
