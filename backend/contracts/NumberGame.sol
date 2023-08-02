@@ -9,6 +9,11 @@ contract NumberGame {
     uint256 public player2Bet;
     uint256 private minimumBet;
     uint256 private targetNumber;
+    uint256 private player1Guess;
+    uint256 private player2Guess;
+    bool private player1BetStatus = false;
+    bool private player2BetStatus = false;
+    bool private playersBetStatus = false;
     bool public gameEnded;
     address public currentPlayer;
     
@@ -32,6 +37,7 @@ contract NumberGame {
     
 
     function joinGame() public payable {
+
         require(
             player1 == address(0) || player2 == address(0),
             "Game is already full"
@@ -42,17 +48,19 @@ contract NumberGame {
 
         if (player1 == address(0)) {
             player1 = payable(msg.sender);
-            currentPlayer = player1;
             minimumBet = msg.value;
+            player1Bet += msg.value;
+            player1BetStatus = true;
         } else if (player2 == address(0)) {
             require(msg.value >=  minimumBet , "The ether needed to join needs to be higher");
             player2 = payable(msg.sender);
-            currentPlayer = (currentPlayer == player1) ? player1 : player2;
+            player2Bet += msg.value;
+            player2BetStatus = true;
         }
         gameEnded = false;
     }
 
-    function makeBet() public payable{
+    function makeGuess(uint256 guessNumber) public payable{
         require(!gameEnded, "Game has already ended");
         require(msg.sender == player1 || msg.sender == player2, "Not a player");
         require(msg.value >=  0.00005 ether , "Please send more ether to join the game");
@@ -61,13 +69,27 @@ contract NumberGame {
         if (msg.sender == player1) {
             player1 = payable(msg.sender);
             player1Bet += msg.value;
+            player1Guess = guessNumber;
+            player1BetStatus = true;
         } else if (msg.sender == player2) {
             player2 = payable(msg.sender);
             player2Bet += msg.value;
+            player2Guess = guessNumber;
+            player2BetStatus = true;
+        }
+
+        playersBetStatus = player1BetStatus && player2BetStatus;
+
+        if(playersBetStatus == true){
+            Result(player1Guess,player2Guess);
+        }else{
+            require(playersBetStatus != true, "Not all Player have enter their guess");
         }
     }
 
-    function makeGuess(uint256 p1Guess, uint256 p2Guess) public {
+    
+
+    function Result(uint256 p1Guess, uint256 p2Guess) public {
         require(!gameEnded, "Game has already ended");
         require(p1Guess > 0 && p1Guess <= 10, "Guess must be between 1 and 10");
         require(p2Guess > 0 && p2Guess <= 10, "Guess must be between 1 and 10");

@@ -9,17 +9,14 @@ const CONTRACT_ADDRESS = "0x87728653fdec1fDbF4b914c87AECea58953ac7e8"; // addres
 
 // Main Functions
 function App() {
-  const userGuessInput = 0;
+  var userGuessInput = 0;
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
   const [targetNumber, setTargetNumber] = useState(null);
-  const [GuessMessage, setGuessMessage] = useState(null);
+  const [guessMessage, setguessMessage] = useState(null);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const [Player1Bet, setPlayer1Bet] = useState(false);
-  const [Player2Bet, setPlayer2Bet] = useState(false);
-  const [Player1, setPlayer1] = useState(null);
-  const [Player2, setPlayer2] = useState(null);
-  const minimumBet = "";
+
+  var minimumBet = "";
 
 
 
@@ -42,14 +39,6 @@ useEffect(() => {
       const tempContract = new ethers.Contract(CONTRACT_ADDRESS, Abijson, tempSigner);
 
       setContract(tempContract);
-      try {
-        const player1Address = await contract.player1;
-        alert(player1Address);
-        const player2Address = await contract.player2;
-        setPlayer1(player2Address);
-      } catch (error) {
-        alert( error);
-      }
     } else {
       console.error('MetaMask extension not found.');
     }
@@ -58,6 +47,7 @@ useEffect(() => {
     window.ethereum.on('accountsChanged', accounts => {
       setDefaultAccount(accounts[0]);
     });
+    
   }, []);
 
   const accountChangeHandler = (newAccount) => {
@@ -67,7 +57,8 @@ useEffect(() => {
 //passing value to smart contract
   async function JoinGame(){
     try{
-        const valueToSend = ethers.utils.parseEther('0.00005'); 
+        const InitialBet = document.getElementById('EntryBet');
+        const valueToSend = ethers.utils.parseEther(InitialBet); 
     
         const tx = await contract.joinGame({ value: valueToSend, gasLimit: 100000 });// send the ethers and gas to the smart contract
         await tx.wait();
@@ -78,22 +69,14 @@ useEffect(() => {
   }
 
   async function Guess(){
-    const BothPlayerBet = Player1Bet && Player2Bet;
-    if(BothPlayerBet == true){
-      try{
-        const guessing = await contract
-        .makeGuess(userGuessInput, { from: defaultAccount, value: valueToSend, gasLimit: 100000})
-        await guessing.wait();
-        setGuessMessage(`Next Player ${defaultAccount}`);
-        if(defaultAccount == Player1){
-          setPlayer1Bet = true;
-        } else if(defaultAccount == Player2){
-          setPlayer2Bet = true;
-        }
-        }catch(error){
-        alert(error);
-        }
-    };
+    try{
+      const guessing = await contract
+      .makeGuess(player1Guess, { from: defaultAccount, gasLimit: 100000})
+      await guessing.wait();
+      setguessMessage(`Next Player ${defaultAccount}`);
+      }catch(error){
+      alert(error);
+      }
     
   }
 
@@ -121,14 +104,6 @@ useEffect(() => {
     }
   }
 
-  async function MakeBet(Value){
-    try{
-      const betValue = ethers.utils.parseEther(Value);
-      await contract.makeBet({from: defaultAccount, value: betValue, gasLimit :100000});
-    } catch(error){
-      alert(error);
-    }
-  }
 
 // UI PART
   
@@ -143,15 +118,13 @@ useEffect(() => {
 
     if(tempbet< 0.00005){
       alert(`Please Bet more than the minimum bet amount${minimumBet}`);
-    }else{
-      MakeBet(InputBetElement);
     }
 
     if (intValue <= 1 && intValue >= 10){
-      Guess();
+      
     } 
     else {
-      alert('Not nice!');
+      Guess();
     }
   }
 
@@ -184,7 +157,7 @@ useEffect(() => {
           <button onClick={Withdraw}>Withdraw</button>
           <button onClick={GetNumber}>Get Number</button>
           {showErrorMessage && <p>You are not authorized to show the target number</p>}
-          <p>Player Turn: {GuessMessage}</p>
+          <p>Player Turn: {guessMessage}</p>
           <p>Random Number: {targetNumber}</p>
         </div>
       </div>
