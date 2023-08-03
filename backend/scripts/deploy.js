@@ -6,7 +6,8 @@ async function main() {
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
     const Numbergame = await ethers.getContractFactory("NumberGame");
-    const contract = await Numbergame.deploy();
+    const defaultMinBet = ethers.utils.parseUnits("0.00005", "wei");
+    const contract = await Numbergame.deploy(defaultMinBet);
 
     console.log("NumberGame address:", await contract.address);
 }

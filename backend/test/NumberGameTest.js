@@ -1,10 +1,16 @@
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers"); // use to redeploy the contract for faster testing to improve reliability.
 const { expect } = require("chai");
 
+        
+
 describe("NumberGame Contract", function(){
     async function deployToken(){
         const [owner,Player1, Player2,Player3] = await ethers.getSigners();
-        const hardhatContract = await ethers.deployContract("NumberGame");
+        const defaultMinBetRaw = ethers.utils.parseUnits('0.00005', 'ether');
+        const defaultMinBet = defaultMinBetRaw.toNumber();
+        const NumberGame = await ethers.getContractFactory("NumberGame");
+        const hardhatContract = await NumberGame.deploy(defaultMinBet);
+        
         await hardhatContract.deployed();
 
         return {hardhatContract,Player1,Player2,Player3,owner};
@@ -66,12 +72,12 @@ describe("NumberGame Contract", function(){
 
     describe("Guessing Time", function(){
         
-        it("Both player mush put in their bet and guessing number to proceed", async function(){
+        it("Player must guess between 1 to 10", async function(){
             const {hardhatContract,Player1} = await loadFixture(deployToken);
 
-            const P1Guess = 1;
+            const P1Guess = 12;
             const P2Guess = 0;
-            await expect(hardhatContract.connect(Player1).makeGuess(P1Guess, P2Guess)).to.be.revertedWith("Guess must be between 1 and 10");
+            await expect(hardhatContract.connect(Player1).finalizeGame(P1Guess, P2Guess)).to.be.revertedWith("Guess must be between 1 and 10");
         });
 
         it("Player bet must be higher than the minimum bet", async function(){
@@ -82,8 +88,8 @@ describe("NumberGame Contract", function(){
             await hardhatContract.connect(Player1).joinGame({value: initalBet});
             await hardhatContract.connect(Player2).joinGame({value: initalBet});
             
-            await expect(hardhatContract.connect(Player1).makeBet({value: BetValue})).to.be.revertedWith("Please send more ether to join the game");
-            await expect(hardhatContract.connect(Player1).makeBet({value: lowminbet})).to.be.revertedWith("Please send ether with your guess equal or higher than the entry fee");
+            await expect(hardhatContract.connect(Player1).makeGuess(3,{value: BetValue})).to.be.revertedWith("Please send more ether to join the game");
+            await expect(hardhatContract.connect(Player2).makeGuess(4,{value: lowminbet})).to.be.revertedWith("Please send ether with your guess equal or higher than the entry fee");
 
         })
 
@@ -92,21 +98,20 @@ describe("NumberGame Contract", function(){
             const initalBet = ethers.utils.parseEther('0.01');
             const betValue = ethers.utils.parseEther('10');
             // Players join the game and make their guesses
-            await hardhatContract.connect(Player1).joinGame({value: initalBet});
-            await hardhatContract.connect(Player2).joinGame({value: initalBet});
-            await hardhatContract.connect(Player1).makeBet({value: betValue, gasLimit: 100000});
-            await hardhatContract.connect(Player2).makeBet({value: betValue, gasLimit: 100000});
-            await hardhatContract.connect(owner).setTargetNumber(3);
-        
             const p1Guess = 3;
             const p2Guess = 3;
-            await hardhatContract.makeGuess(p1Guess, p2Guess);
+            await hardhatContract.connect(owner).setTargetNumber(3);
+            await hardhatContract.connect(Player1).joinGame({value: initalBet});
+            await hardhatContract.connect(Player2).joinGame({value: initalBet});
+            await hardhatContract.connect(Player1).makeGuess(p1Guess, {value: betValue, gasLimit: 100000});
+            await hardhatContract.connect(Player2).makeGuess(p2Guess, {value: betValue, gasLimit: 120000});
+            
 
+            
             // Assert that the contract balance is now zero
             expect(await ethers.provider.getBalance(hardhatContract.address)).to.equal(0);
             const player1Balance = await Player1.getBalance();
             const player2Balance = await Player2.getBalance();
-
             // Convert player balances to BigNumber and perform arithmetic operations
             const player1Ether = ethers.BigNumber.from(player1Balance);
             const player2Ether = ethers.BigNumber.from(player2Balance);
@@ -129,9 +134,8 @@ describe("NumberGame Contract", function(){
             await hardhatContract.connect(owner).setTargetNumber(3);
             await hardhatContract.connect(Player1).joinGame({value: initalBet});
             await hardhatContract.connect(Player2).joinGame({value: initalBet});
-            await hardhatContract.connect(Player1).makeBet({value: BetValue});
-            await hardhatContract.connect(Player2).makeBet({value: BetValue});
-            await hardhatContract.makeGuess(P1Guess,P2Guess);
+            await hardhatContract.connect(Player1).makeGuess(P1Guess,{value: BetValue});
+            await hardhatContract.connect(Player2).makeGuess(P2Guess,{value: BetValue});
             expect(await ethers.provider.getBalance(hardhatContract.address)).to.equal(0);
             const player1Balance = await Player1.getBalance();
             const player2Balance = await Player2.getBalance();
@@ -150,27 +154,29 @@ describe("NumberGame Contract", function(){
 
     describe("Withdraw from Game", function(){
         it("if any player withdraw, half of their bet still in the contract", async function(){
-            const {hardhatContract,Player1,Player2} = await loadFixture(deployToken);
+            const {hardhatContract,Player1,Player2,owner} = await loadFixture(deployToken);
             const initialBet = ethers.utils.parseEther("0.0005");
             const BetValue = ethers.utils.parseEther("0.001");
+            await hardhatContract.connect(owner).setTargetNumber(3);
             await hardhatContract.connect(Player1).joinGame({value: initialBet});
             await hardhatContract.connect(Player2).joinGame({value: initialBet});
-            await hardhatContract.connect(Player1).makeBet({value: BetValue});
-            await hardhatContract.connect(Player2).makeBet({value: BetValue});
+            await hardhatContract.connect(Player1).makeGuess(5,{value: BetValue});
+            await hardhatContract.connect(Player2).makeGuess(6,{value: BetValue});
             await hardhatContract.connect(Player1).withdraw();
-            const expectedbalance = ethers.utils.parseEther("0.0025");
+            const expectedbalance = ethers.utils.parseEther("0.00225");
             expect(await ethers.provider.getBalance(hardhatContract.address)).to.equal(expectedbalance);
 
         });
 
         it("Only allow the player who joined the game to withdraw", async function(){
-            const {hardhatContract,Player1,Player2,Player3} = await loadFixture(deployToken);
-            const initialBet = ethers.utils.parseEther("0.0005");
+                const {hardhatContract,Player1,Player2,Player3,owner} = await loadFixture(deployToken);
+                const initialBet = ethers.utils.parseEther("0.0005");
             const BetValue = ethers.utils.parseEther("0.001");
+            await hardhatContract.connect(owner).setTargetNumber(3);
             await hardhatContract.connect(Player1).joinGame({value: initialBet});
             await hardhatContract.connect(Player2).joinGame({value: initialBet});
-            await hardhatContract.connect(Player1).makeBet({value: BetValue});
-            await hardhatContract.connect(Player2).makeBet({value: BetValue});
+            await hardhatContract.connect(Player1).makeGuess(5,{value: BetValue});
+            await hardhatContract.connect(Player2).makeGuess(6,{value: BetValue});
             await expect (hardhatContract.connect(Player3).withdraw()).to.be.revertedWith("Not a player");
         });
     });

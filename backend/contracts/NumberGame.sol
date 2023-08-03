@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 contract NumberGame {
     enum GameState{
         WaitingForPlayer,
-        BothPlayerBetStatus,
+        BothPlayerFinishBet,
         GameEnded
     }
 
@@ -19,14 +19,15 @@ contract NumberGame {
     uint256 private targetNumber;
     uint256 private player1Guess;
     uint256 private player2Guess;
-    bool private p1BetStatus;
-    bool private p2BetStatus;
+    bool public p1BetStatus;
+    bool public p2BetStatus;
     bool public gameEnded;
     address public currentPlayer;
     
-    constructor() {
+    constructor(uint256 _defaultMinBet) payable {
         owner = payable(msg.sender);
         generateTargetNumber();
+        defaultMinBet = _defaultMinBet;
     }
 
     function generateTargetNumber() private {
@@ -79,13 +80,17 @@ contract NumberGame {
         require(msg.sender == player1 || msg.sender == player2, "Not a player");
         require(msg.value >=  defaultMinBet , "Please send more ether to join the game");
         require(msg.value >=  minimumBet, "Please send ether with your guess equal or higher than the entry fee");
+        
+        
 
         if (msg.sender == player1) {
+            require(p1BetStatus == false, "You have Bet already");
             player1 = payable(msg.sender);
             player1Bet += msg.value;
             player1Guess = guessNumber;
             p1BetStatus = true;
         } else if (msg.sender == player2) {
+            require(p2BetStatus == false, "You have Bet already");
             player2 = payable(msg.sender);
             player2Bet += msg.value;
             player2Guess = guessNumber;
@@ -93,10 +98,10 @@ contract NumberGame {
         }
 
         if(p1BetStatus == true && p2BetStatus == true){
-            currentState = GameState.BothPlayerBetStatus;
+            currentState = GameState.BothPlayerFinishBet;
         }
 
-        if(currentState == GameState.BothPlayerBetStatus){
+        if(currentState == GameState.BothPlayerFinishBet){
             finalizeGame(player1Guess, player2Guess);
         }
 
@@ -169,6 +174,7 @@ contract NumberGame {
     }
 
     function setTargetNumber(uint256 newTargetNumber) public {
+    require(newTargetNumber > 0 && newTargetNumber <= 10, "Guess must be between 1 and 10");
     require(msg.sender == owner, "Only the owner can set the target number");
     targetNumber = newTargetNumber;
     }
