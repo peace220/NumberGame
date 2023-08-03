@@ -5,19 +5,14 @@ import Abijson from '../contractABI.json';
 //css
 import style from '../MainInterface.module.css';
 const OWNER_ADDRESS = process.env.REACT_APP_OWNER_ADDRESS;
-const CONTRACT_ADDRESS = "0x87728653fdec1fDbF4b914c87AECea58953ac7e8"; // address of the contract
+const CONTRACT_ADDRESS = "0x5cA45679bC423BacF198C217d3fa113F09862eDc"; // address of the contract
 
 // Main Functions
 function App() {
-  var userGuessInput = 0;
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [contract, setContract] = useState(null);
   const [targetNumber, setTargetNumber] = useState(null);
-  const [guessMessage, setguessMessage] = useState(null);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-
-  var minimumBet = "";
-
 
 
 //auto initialized needed to connect to wallet
@@ -58,7 +53,7 @@ useEffect(() => {
   async function JoinGame(){
     try{
         const InitialBet = document.getElementById('EntryBet');
-        const valueToSend = ethers.utils.parseEther(InitialBet); 
+        const valueToSend = ethers.utils.parseEther(InitialBet.value); 
     
         const tx = await contract.joinGame({ value: valueToSend, gasLimit: 100000 });// send the ethers and gas to the smart contract
         await tx.wait();
@@ -68,12 +63,12 @@ useEffect(() => {
     }
   }
 
-  async function Guess(){
+  async function Guess(BetValue, playerGuess){
     try{
+      const valueToSend = ethers.utils.parseEther(BetValue); 
       const guessing = await contract
-      .makeGuess(player1Guess, { from: defaultAccount, gasLimit: 100000})
+      .makeGuess(playerGuess, { value: valueToSend, from: defaultAccount, gasLimit: 120000})
       await guessing.wait();
-      setguessMessage(`Next Player ${defaultAccount}`);
       }catch(error){
       alert(error);
       }
@@ -110,22 +105,20 @@ useEffect(() => {
   const HandleFormSubmit = (event)=>{
     event.preventDefault();
     const InputBetElement = document.getElementById('BetValue');
-    const intValue = parseInt(userGuessInput, 10);
+    const intValue = document.getElementById('GuessValue');
+    const tempGuess = parseInt(intValue.value);
     const tempbet = parseFloat(InputBetElement.value);
-    if (isNaN(intValue) && isNaN(tempbet)) {
+    if (isNaN(tempGuess) && isNaN(tempbet)) {
       alert('Please enter a valid number.');
     }
 
     if(tempbet< 0.00005){
       alert(`Please Bet more than the minimum bet amount${minimumBet}`);
     }
-
-    if (intValue <= 1 && intValue >= 10){
-      
+    if (tempGuess >= 1 && tempGuess <= 10){
+      Guess(InputBetElement.value, tempGuess);
     } 
-    else {
-      Guess();
-    }
+    
   }
 
   return (
@@ -157,7 +150,6 @@ useEffect(() => {
           <button onClick={Withdraw}>Withdraw</button>
           <button onClick={GetNumber}>Get Number</button>
           {showErrorMessage && <p>You are not authorized to show the target number</p>}
-          <p>Player Turn: {guessMessage}</p>
           <p>Random Number: {targetNumber}</p>
         </div>
       </div>
