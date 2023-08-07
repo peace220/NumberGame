@@ -5,7 +5,7 @@ import Abijson from '../contractABI.json';
 //css
 import style from '../MainInterface.module.css';
 const OWNER_ADDRESS = process.env.REACT_APP_OWNER_ADDRESS;
-const CONTRACT_ADDRESS = "0x5cA45679bC423BacF198C217d3fa113F09862eDc"; // address of the contract
+const CONTRACT_ADDRESS = "0x8785bb53Ba509A1ceF69EA983F272A60C008320b"; // address of the contract
 
 // Main Functions
 function App() {
