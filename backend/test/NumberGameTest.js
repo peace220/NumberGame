@@ -179,6 +179,20 @@ describe("NumberGame Contract", function(){
             await hardhatContract.connect(Player2).makeGuess(6,{value: BetValue});
             await expect (hardhatContract.connect(Player3).withdraw()).to.be.revertedWith("Not a player");
         });
+
+        it("Only allow the player to withdraw round 2 onwards and without starting the guessing yet.", async function(){
+            const {hardhatContract,Player1,Player2,owner} = await loadFixture(deployToken);
+            const initialBet = ethers.utils.parseEther("0.0005");
+            const BetValue = ethers.utils.parseEther("0.001");
+            await hardhatContract.connect(owner).setTargetNumber(3);
+            await hardhatContract.connect(Player1).joinGame({value: initialBet});
+            await hardhatContract.connect(Player2).joinGame({value: initialBet});
+            await hardhatContract.connect(Player1).makeGuess(5,{value: BetValue});
+            await hardhatContract.connect(Player2).makeGuess(6,{value: BetValue});
+            await hardhatContract.connect(Player2).makeGuess(6,{value: BetValue});
+            await expect (hardhatContract.connect(Player2).withdraw()).to.be.revertedWith("A guess is ongoing");
+    });
+
     });
     
     

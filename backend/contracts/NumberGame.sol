@@ -121,33 +121,15 @@ contract NumberGame {
             uint256 player2Share = (address(this).balance * player2Bet) / totalBet;
             payable(player1).transfer(player1Share);
             payable(player2).transfer(player2Share);
-            generateTargetNumber();
-            player1 = payable(address(0));
-            player2 = payable(address(0));
-            p1BetStatus = p2BetStatus = false;
-            player1Bet = player2Bet = 0;
-            minimumBet = defaultMinBet;
-            currentState = GameState.GameEnded;
+            resetGame();
         } else if(p1Guess == targetNumber){
             gameEnded = true;
             payable(player1).transfer(address(this).balance);
-            generateTargetNumber();
-            player1 = payable(address(0));
-            player2 = payable(address(0));
-            p1BetStatus = p2BetStatus = false;
-            player1Bet = player2Bet = 0;
-            minimumBet = defaultMinBet;
-            currentState = GameState.GameEnded;
+            resetGame();
         }else if(p2Guess == targetNumber){
             gameEnded = true;
             payable(player2).transfer(address(this).balance);
-            generateTargetNumber();
-            player1 = payable(address(0));
-            player2 = payable(address(0));
-            p1BetStatus = p2BetStatus = false;
-            player1Bet = player2Bet = 0;
-            minimumBet = defaultMinBet;
-            currentState = GameState.GameEnded;
+            resetGame();
         }else{
             currentState = GameState.WaitingForPlayer;
             p1BetStatus = p2BetStatus = false;
@@ -158,6 +140,7 @@ contract NumberGame {
         require(msg.sender == player1 || msg.sender == player2, "Not a player");
 
         if (msg.sender == player1) {
+            require(p1BetStatus == false, "A guess is ongoing");
             uint256 amount = player1Bet / 2;
             require(amount >= minimumBet, "No balance to withdraw");
             payable(player1).transfer(amount);
@@ -165,6 +148,7 @@ contract NumberGame {
             player1Bet = 0;
 
         } if(msg.sender == player2) {
+            require(p2BetStatus == false, "A guess is ongoing");
             uint256 amount = player2Bet / 2;
             require(amount >= minimumBet, "No balance to withdraw");
             payable(player2).transfer(amount);
@@ -174,9 +158,9 @@ contract NumberGame {
     }
 
     function setTargetNumber(uint256 newTargetNumber) public {
-    require(newTargetNumber > 0 && newTargetNumber <= 10, "Guess must be between 1 and 10");
-    require(msg.sender == owner, "Only the owner can set the target number");
-    targetNumber = newTargetNumber;
+        require(newTargetNumber > 0 && newTargetNumber <= 10, "Guess must be between 1 and 10");
+        require(msg.sender == owner, "Only the owner can set the target number");
+        targetNumber = newTargetNumber;
     }
 
     function getTargetNumber() public view returns (uint256) {
@@ -185,5 +169,15 @@ contract NumberGame {
 
         return targetNumber;
     }
+
+    function resetGame() private {
+        generateTargetNumber();
+        player1 = payable(address(0));
+        player2 = payable(address(0));
+        p1BetStatus = p2BetStatus = false;
+        player1Bet = player2Bet = 0;
+        minimumBet = defaultMinBet;
+        currentState = GameState.GameEnded;
+}
 
 }
